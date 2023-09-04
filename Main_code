@@ -1,0 +1,39 @@
+from PIL import Image
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Image as RLImage
+
+def convert_images_to_pdf(image_directory, pdf_output):
+    # Create a PDF document
+    doc = SimpleDocTemplate(pdf_output, pagesize=letter)
+
+    # Initialize a list to hold the image elements
+    image_elements = []
+
+    # Open and add each image in the specified directory to the PDF
+    for image_file in image_directory.glob('*.jpg'):
+        img = Image.open(image_file)
+        img_width, img_height = img.size
+
+        # Calculate the aspect ratio to fit the image on the page
+        aspect_ratio = img_height / float(img_width)
+        img_width = letter[0] - 50  # Adjust this margin as needed
+        img_height = img_width * aspect_ratio
+
+        # Create an image element and add it to the list
+        image = RLImage(image_file, width=img_width, height=img_height)
+        image_elements.append(image)
+
+    # Build the PDF document
+    doc.build(image_elements)
+
+if __name__ == "__main__":
+    from pathlib import Path
+
+    # Specify the directory containing image files
+    image_directory = Path("images")
+
+    # Output PDF file name
+    pdf_output = "output.pdf"
+
+    # Call the function to convert images to PDF
+    convert_images_to_pdf(image_directory, pdf_output)
